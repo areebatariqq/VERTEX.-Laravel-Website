@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'VERTEX — ' . $module['name'])
+@section('title', 'VERTEX — ' . $module->name)
 
 @section('content')
     <main class="module-detail-section">
@@ -12,41 +12,36 @@
             <div class="module-detail-content">
                 <!-- Left Side - Image -->
                 <div class="module-image-section">
-                    <img src="{{ asset($module['image']) }}" alt="{{ $module['name'] }}" class="module-image">
+                    <img src="{{ asset($module->image) }}" alt="{{ $module->name }}" class="module-image"
+                        onerror="this.src='{{ asset('images/project.png') }}'">
                 </div>
 
                 <!-- Right Side - Module Info -->
                 <div class="module-info-section">
-                    <h1 class="module-title">{{ $module['name'] }}</h1>
-                    
+                    <h1 class="module-title">{{ $module->name }}</h1>
+
                     <!-- Pricing -->
                     <div class="pricing-section">
-                        @if(isset($module['earlybird_fee']))
+                        @if($module->earlybird_fee)
                             <div class="price-item earlybird">
                                 <span class="price-label">Early Bird:</span>
-                                <span class="price-value">PKR {{ $module['earlybird_fee'] }}/-</span>
+                                <span class="price-value">PKR {{ number_format($module->earlybird_fee) }}/-</span>
                             </div>
                         @endif
                         <div class="price-item regular">
                             <span class="price-label">
-                                @if($module['type'] == 'workshop') Duration: {{ $module['duration'] ?? 'N/A' }}
-                                @elseif($module['type'] == 'webinar') Fee:
-                                @elseif($module['type'] == 'competition') Entry Fee:
+                                @if($module->type == 'workshop') Duration: {{ $module->duration ?? 'N/A' }}
+                                @elseif($module->type == 'webinar') Fee:
+                                @elseif($module->type == 'competition') Entry Fee:
                                 @else Entry Fee:
                                 @endif
                             </span>
-                            <span class="price-value">PKR {{ $module['fee'] }}/-</span>
+                            <span class="price-value">PKR {{ number_format($module->fee) }}/-</span>
                         </div>
-                        @if(isset($module['team']))
+                        @if($module->team_min && $module->team_max)
                             <div class="team-info">
                                 <span class="team-label">Team:</span>
-                                <span class="team-value">{{ $module['team'] }}</span>
-                            </div>
-                        @endif
-                        @if(isset($module['prize']))
-                            <div class="prize-info">
-                                <span class="prize-label">Prize:</span>
-                                <span class="prize-value">PKR {{ $module['prize'] }}/-</span>
+                                <span class="team-value">{{ $module->team_min }}-{{ $module->team_max }}</span>
                             </div>
                         @endif
                     </div>
@@ -57,7 +52,7 @@
                     <!-- Description -->
                     <div class="description-section">
                         <h3>Description</h3>
-                        <p>{{ $module['description'] }}</p>
+                        <p>{{ $module->description }}</p>
                     </div>
 
                     <!-- Quantity Selector -->
@@ -65,10 +60,11 @@
                         <label for="quantity">Team Size:</label>
                         <div class="quantity-selector">
                             <button type="button" class="quantity-btn minus" onclick="changeQuantity(-1)">-</button>
-                            <input type="number" id="quantity" name="quantity" value="{{ $module['team_min'] }}" min="{{ $module['team_min'] }}" max="{{ $module['team_max'] }}" readonly>
+                            <input type="number" id="quantity" name="quantity" value="{{ $module->team_min }}"
+                                min="{{ $module->team_min }}" max="{{ $module->team_max }}" readonly>
                             <button type="button" class="quantity-btn plus" onclick="changeQuantity(1)">+</button>
                         </div>
-                        <p class="team-info-text">Team size: {{ $module['team'] }} members</p>
+                        <p class="team-info-text">Team size: {{ $module->team_min }}-{{ $module->team_max }} members</p>
                     </div>
 
                     <!-- Success/Error Messages -->
@@ -89,13 +85,13 @@
                     <!-- Add to Cart Form -->
                     <form method="POST" action="{{ url('/cart/add') }}" class="add-to-cart-form">
                         @csrf
-                        <input type="hidden" name="module_id" value="{{ $module['id'] }}">
-                        <input type="hidden" name="module_name" value="{{ $module['name'] }}">
-                        <input type="hidden" name="module_type" value="{{ $module['type'] }}">
-                        <input type="hidden" name="module_image" value="{{ $module['image'] }}">
-                        <input type="hidden" name="module_fee" value="{{ $module['fee'] }}">
-                        <input type="hidden" name="quantity" id="quantity-hidden" value="{{ $module['team_min'] }}">
-                        
+                        <input type="hidden" name="module_id" value="{{ $module->id }}">
+                        <input type="hidden" name="module_name" value="{{ $module->name }}">
+                        <input type="hidden" name="module_type" value="{{ $module->type }}">
+                        <input type="hidden" name="module_image" value="{{ $module->image }}">
+                        <input type="hidden" name="module_fee" value="{{ $module->fee }}">
+                        <input type="hidden" name="quantity" id="quantity-hidden" value="{{ $module->team_min }}">
+
                         <div class="action-buttons">
                             <button type="submit" class="btn add-to-cart-btn">
                                 <i class="cart-icon">🛒</i> Add to Cart
@@ -111,7 +107,7 @@
             <!-- Student Reviews Section -->
             <div class="reviews-section">
                 <h2 class="reviews-title">Student Reviews</h2>
-                
+
                 <!-- Review Form -->
                 <div class="review-form">
                     <form id="reviewForm" onsubmit="submitReview(event)">
@@ -157,7 +153,8 @@
 
                         <div class="form-group">
                             <label for="comment">Your Comment:</label>
-                            <textarea id="comment" name="comment" rows="4" placeholder="Share your experience with this module..." required></textarea>
+                            <textarea id="comment" name="comment" rows="4"
+                                placeholder="Share your experience with this module..." required></textarea>
                         </div>
 
                         <button type="submit" class="btn submit-review-btn">Submit Review</button>
@@ -176,7 +173,7 @@
 
 
     <script>
-        let currentQuantity = {{ $module['team_min'] }};
+        let currentQuantity = {{ $module->team_min }};
 
         function changeQuantity(change) {
             const quantityInput = document.getElementById('quantity');
@@ -184,7 +181,7 @@
             const newQuantity = currentQuantity + change;
             const min = parseInt(quantityInput.min);
             const max = parseInt(quantityInput.max);
-            
+
             if (newQuantity >= min && newQuantity <= max) {
                 currentQuantity = newQuantity;
                 quantityInput.value = currentQuantity;
@@ -198,10 +195,10 @@
 
         function submitReview(event) {
             event.preventDefault();
-            
+
             const form = document.getElementById('reviewForm');
             const thankYouMessage = document.getElementById('thank-you-message');
-            
+
             // Hide form and show thank you message
             form.style.display = 'none';
             thankYouMessage.style.display = 'block';

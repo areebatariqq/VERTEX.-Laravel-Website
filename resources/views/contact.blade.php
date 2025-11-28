@@ -37,27 +37,41 @@
                 <!-- Social Media Links -->
                 <section class="social-media-section">
                     <div class="info-card">
-                        <h3>Follow Us</h3>
+                        <h3>
+                            <span style="font-size: 1.5rem;">📱</span>
+                            Follow Us
+                        </h3>
+                        <p style="margin-bottom: 25px; color: rgba(255, 255, 255, 0.8);">
+                            Stay connected with VERTEX on social media for the latest updates, announcements, and behind-the-scenes content.
+                        </p>
                         <div class="social-links">
                             <a href="#" class="social-link instagram">
                                 <span class="social-icon">📷</span>
-                                <span class="social-platform">Instagram</span>
-                                <span class="social-handle">@vertex_official</span>
+                                <div style="display: flex; flex-direction: column; gap: 3px;">
+                                    <span class="social-platform">Instagram</span>
+                                    <span class="social-handle">@vertex_official</span>
+                                </div>
                             </a>
                             <a href="#" class="social-link facebook">
                                 <span class="social-icon">📘</span>
-                                <span class="social-platform">Facebook</span>
-                                <span class="social-handle">Vertex University</span>
+                                <div style="display: flex; flex-direction: column; gap: 3px;">
+                                    <span class="social-platform">Facebook</span>
+                                    <span class="social-handle">Vertex University</span>
+                                </div>
                             </a>
                             <a href="#" class="social-link linkedin">
                                 <span class="social-icon">💼</span>
-                                <span class="social-platform">LinkedIn</span>
-                                <span class="social-handle">Vertex University</span>
+                                <div style="display: flex; flex-direction: column; gap: 3px;">
+                                    <span class="social-platform">LinkedIn</span>
+                                    <span class="social-handle">Vertex University</span>
+                                </div>
                             </a>
                             <a href="#" class="social-link twitter">
                                 <span class="social-icon">🐦</span>
-                                <span class="social-platform">Twitter</span>
-                                <span class="social-handle">@vertex_university</span>
+                                <div style="display: flex; flex-direction: column; gap: 3px;">
+                                    <span class="social-platform">Twitter</span>
+                                    <span class="social-handle">@vertex_university</span>
+                                </div>
                             </a>
                         </div>
                     </div>

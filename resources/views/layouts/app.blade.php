@@ -19,6 +19,105 @@
 
     {{-- Custom CSS --}}
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    
+    <style>
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-name {
+            color: #fff;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .logout-btn:hover {
+            background: #c82333;
+        }
+        .main-nav a {
+            position: relative;
+            white-space: nowrap;
+        }
+        
+        /* User Info Section */
+        .user-info-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-shrink: 0;
+            margin-left: 20px;
+        }
+        
+        .current-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .user-icon {
+            font-size: 1.2rem;
+        }
+        
+        .current-user .user-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+        }
+        
+        /* Adjust search container */
+        .search-container {
+            flex-shrink: 0;
+            margin-left: 0;
+            margin-right: 0;
+        }
+        
+        /* Ensure proper layout */
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 10px 20px !important;
+        }
+        
+        @media (max-width: 1200px) {
+            .main-nav {
+                gap: 20px;
+            }
+            .search-input {
+                width: 150px !important;
+            }
+            .current-user .user-name {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .main-nav {
+                gap: 15px;
+                font-size: 14px;
+            }
+            .logo img {
+                height: 80px !important;
+            }
+            .user-info-section {
+                margin-left: 10px;
+            }
+        }
+    </style>
 
     @yield('extra_css')
 </head>
@@ -38,6 +137,17 @@
                 <i class="cart-icon">🛒</i> Cart
             </a>
             <a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">Contact</a>
+            
+            @auth
+                @if(auth()->user()->role === 'admin')
+                    <a href="{{ route('admin.modules.index') }}" class="{{ request()->routeIs('admin.*') ? 'active' : '' }}" style="color: #ffc107 !important; font-weight: 600;">
+                        Admin
+                    </a>
+                @endif
+            @else
+                <a href="{{ route('login') }}" class="{{ request()->routeIs('login') ? 'active' : '' }}">Login</a>
+                <a href="{{ route('register') }}" class="{{ request()->routeIs('register') ? 'active' : '' }}">Register</a>
+            @endauth
         </nav>
         
         <!-- Search Bar -->
@@ -52,11 +162,51 @@
                 </div>
             </form>
         </div>
+
+        <!-- User Info & Logout -->
+        @auth
+        <div class="user-info-section">
+            <div class="current-user">
+                <span class="user-icon">👤</span>
+                <span class="user-name">{{ auth()->user()->name }}</span>
+            </div>
+            <form action="{{ route('logout') }}" method="POST" style="display: inline; margin: 0;">
+                @csrf
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+        </div>
+        @endauth
     </div>
 </header>
 
 {{-- MAIN CONTENT --}}
 <main>
+    {{-- Flash Messages --}}
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin: 20px auto; max-width: 1200px;">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin: 20px auto; max-width: 1200px;">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin: 20px auto; max-width: 1200px;">
+            <ul class="mb-0">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     @yield('content')
 </main>
 
@@ -67,17 +217,6 @@
         <div class="footer-col">
             <strong>VERTEX.</strong>
             <p>Inter-University Competition Event Platform connecting students worldwide through innovation and technology.</p>
-        </div>
-
-
-        <div class="footer-col">
-            <strong>Useful Links</strong>
-            <ul>
-                <li><a href="#">Privacy Policy</a></li>
-                <li><a href="#">Terms & Conditions</a></li>
-                <li><a href="#">FAQ</a></li>
-                <li><a href="#">Support</a></li>
-            </ul>
         </div>
 
         <div class="footer-col">
