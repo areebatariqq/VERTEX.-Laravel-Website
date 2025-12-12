@@ -82,6 +82,24 @@
                     </div>
                     @endfor
                     
+                    <!-- Payment Information -->
+                    <div class="payment-section">
+                        <h4 class="section-title">Payment Information</h4>
+                        <div class="form-group">
+                            <label for="payment_method">Payment Method</label>
+                            <select id="payment_method" name="payment_method" class="form-control" required>
+                                <option value="">Select payment method</option>
+                                <option value="cash">Cash on Arrival</option>
+                                <option value="card">Credit/Debit Card</option>
+                                <option value="online">Online Transfer</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="notes">Special Notes (Optional)</label>
+                            <textarea id="notes" name="notes" class="form-control" rows="3" placeholder="Any special requirements or notes..."></textarea>
+                        </div>
+                    </div>
+                    
                     <div class="form-actions">
                         <a href="{{ url('/cart') }}" class="back-btn">Back to Cart</a>
                         <button type="submit" class="pay-btn">Complete Registration</button>

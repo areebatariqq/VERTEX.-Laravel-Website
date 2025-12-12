@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use App\Models\Module;
+use App\Http\Controllers\OrderController;
 
 class PageController extends Controller
 {
@@ -173,7 +174,9 @@ class PageController extends Controller
                 'participants.*.name' => 'required|string|max:255',
                 'participants.*.email' => 'required|email|max:255',
                 'participants.*.mobile' => 'required|string|max:20',
-                'participants.*.address' => 'required|string|max:500'
+                'participants.*.address' => 'required|string|max:500',
+                'payment_method' => 'required|in:cash,card,online',
+                'notes' => 'nullable|string|max:500'
             ]);
 
             // Get cart items
@@ -183,14 +186,11 @@ class PageController extends Controller
                 return redirect()->route('cart')->with('error', 'Your cart is empty!');
             }
 
-            // Process the checkout (in a real app, this would save to database)
-            $participants = $request->participants;
+            // Store participants in session temporarily (can be used later if needed)
+            session(['checkout_participants' => $request->participants]);
 
-            // Clear the cart after successful checkout
-            session()->forget('cart');
-
-            // Redirect back to modules page with success message
-            return redirect()->route('modules')->with('success', 'Registration completed! You will be notified for date and timings on mail shortly.');
+            // Redirect to OrderController to create the order
+            return app(OrderController::class)->store($request);
 
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error processing checkout: ' . $e->getMessage());

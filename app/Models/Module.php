@@ -29,4 +29,10 @@ class Module extends Model
         'prize' => 'decimal:2',
         'date' => 'date',
     ];
+
+    // Relationships
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 }

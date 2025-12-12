@@ -140,7 +140,10 @@
             
             @auth
                 @if(auth()->user()->role === 'admin')
-                    <a href="{{ route('admin.modules.index') }}" class="{{ request()->routeIs('admin.*') ? 'active' : '' }}" style="color: #ffc107 !important; font-weight: 600;">
+                    <a href="{{ route('admin.orders.index') }}" class="{{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+                        <i class="fas fa-receipt"></i> Orders
+                    </a>
+                    <a href="{{ route('admin.modules.index') }}" class="{{ request()->routeIs('admin.modules.*') ? 'active' : '' }}" style="color: #ffc107 !important; font-weight: 600;">
                         Admin
                     </a>
                 @endif

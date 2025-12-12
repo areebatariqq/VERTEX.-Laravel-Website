@@ -22,8 +22,12 @@ Route::get('/module/{id}', [PageController::class, 'moduleDetail'])->name('modul
 Route::get('/cart', [PageController::class, 'cart'])->name('cart');
 Route::post('/cart/add', [PageController::class, 'addToCart'])->name('cart.add');
 Route::get('/cart/remove/{index}', [PageController::class, 'removeFromCart'])->name('cart.remove');
-Route::get('/checkout', [PageController::class, 'checkout'])->name('checkout');
-Route::post('/checkout/process', [PageController::class, 'processCheckout'])->name('checkout.process');
+
+// Checkout Routes - Protected by auth middleware
+Route::middleware(['auth'])->group(function () {
+    Route::get('/checkout', [PageController::class, 'checkout'])->name('checkout');
+    Route::post('/checkout/process', [PageController::class, 'processCheckout'])->name('checkout.process');
+});
 
 // Auth Routes
 Route::get('/login', [App\Http\Controllers\AuthController::class, 'showLogin'])->name('login');
@@ -37,10 +41,24 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/dashboard', function () {
         $modulesCount = \App\Models\Module::count();
         $usersCount = \App\Models\User::where('role', 'user')->count();
+        
+        // Check if orders table exists before querying
+        try {
+            $ordersCount = \App\Models\Order::count();
+        } catch (\Exception $e) {
+            $ordersCount = 0;
+        }
+        
         $recentModules = \App\Models\Module::latest()->take(5)->get();
-        return view('admin.dashboard', compact('modulesCount', 'usersCount', 'recentModules'));
+        return view('admin.dashboard', compact('modulesCount', 'usersCount', 'ordersCount', 'recentModules'));
     })->name('dashboard');
 
     // Module Management
     Route::resource('modules', App\Http\Controllers\Admin\ModuleController::class);
+
+    // Order Management
+    Route::get('/orders', [App\Http\Controllers\OrderController::class, 'adminIndex'])->name('orders.index');
+    Route::get('/orders/{id}', [App\Http\Controllers\OrderController::class, 'adminShow'])->name('orders.show');
+    Route::put('/orders/{id}', [App\Http\Controllers\OrderController::class, 'adminUpdate'])->name('orders.update');
+    Route::delete('/orders/{id}', [App\Http\Controllers\OrderController::class, 'adminDestroy'])->name('orders.destroy');
 });

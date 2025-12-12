@@ -12,7 +12,7 @@
 
         <!-- Stats Cards -->
         <div class="row g-4 mb-4">
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="card border-0 shadow" style="background: rgba(74, 144, 226, 0.1); border-left: 4px solid #4a90e2 !important;">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
@@ -25,7 +25,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="card border-0 shadow" style="background: rgba(76, 175, 80, 0.1); border-left: 4px solid #4caf50 !important;">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
@@ -35,6 +35,22 @@
                             </div>
                             <i class="fas fa-users fa-3x" style="color: #4caf50; opacity: 0.3;"></i>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow" style="background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107 !important;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="text-white-50 small mb-1">Total Orders</p>
+                                <h2 class="text-white mb-0">{{ $ordersCount ?? 0 }}</h2>
+                            </div>
+                            <i class="fas fa-shopping-cart fa-3x" style="color: #ffc107; opacity: 0.3;"></i>
+                        </div>
+                        <a href="{{ route('admin.orders.index') }}" class="btn btn-sm btn-warning text-dark fw-semibold mt-2 w-100">
+                            <i class="fas fa-list"></i> View Orders
+                        </a>
                     </div>
                 </div>
             </div>
