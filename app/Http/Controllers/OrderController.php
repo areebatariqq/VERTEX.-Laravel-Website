@@ -167,4 +167,48 @@ class OrderController extends Controller
         return redirect()->route('admin.orders.index')
             ->with('success', 'Order deleted successfully.');
     }
+
+    // Admin: Ajax search for orders
+    public function searchOrders(Request $request)
+    {
+        $query = $request->get('query');
+
+        if (empty($query)) {
+            return response()->json([]);
+        }
+
+        // Search by Order ID or Customer Name (at least 2 characters)
+        $orders = Order::with('user')
+            ->where(function($q) use ($query) {
+                // Search by order ID
+                $q->where('id', 'LIKE', "%{$query}%")
+                  // Search by customer name
+                  ->orWhereHas('user', function($userQuery) use ($query) {
+                      $userQuery->where('name', 'LIKE', "%{$query}%");
+                  })
+                  // Search by customer email
+                  ->orWhereHas('user', function($userQuery) use ($query) {
+                      $userQuery->where('email', 'LIKE', "%{$query}%");
+                  });
+            })
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        // Format results for dropdown
+        $results = $orders->map(function($order) {
+            return [
+                'id' => $order->id,
+                'order_id' => '#' . $order->id,
+                'customer_name' => $order->user->name,
+                'customer_email' => $order->user->email,
+                'total_amount' => number_format($order->total_amount, 2),
+                'status' => ucfirst($order->status),
+                'date' => $order->created_at->format('M d, Y'),
+                'url' => route('admin.orders.show', $order->id)
+            ];
+        });
+
+        return response()->json($results);
+    }
 }

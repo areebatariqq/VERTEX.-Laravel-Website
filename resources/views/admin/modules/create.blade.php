@@ -89,8 +89,18 @@
 
                         <div class="col-12">
                             <label class="form-label text-white">Image</label>
-                            <input type="file" name="image" class="form-control" accept="image/*">
+                            <input type="file" name="image" id="imageInput" class="form-control" accept="image/*">
                             @error('image')<small class="text-danger">{{ $message }}</small>@enderror
+                            <small class="text-white-50">Allowed: JPEG, PNG, JPG, GIF. Max size: 2MB</small>
+                            
+                            <!-- Image Preview -->
+                            <div id="imagePreview" class="mt-3" style="display: none;">
+                                <label class="text-white d-block mb-2">Preview:</label>
+                                <img id="previewImg" src="" alt="Preview" class="img-thumbnail" style="max-width: 300px; max-height: 300px;">
+                                <button type="button" class="btn btn-sm btn-outline-danger mt-2" onclick="clearImagePreview()">
+                                    <i class="fas fa-times"></i> Remove
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -105,6 +115,43 @@
         </div>
     </div>
 </section>
+
+<script>
+// Image preview functionality
+document.getElementById('imageInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        // Validate file type
+        const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+        if (!validTypes.includes(file.type)) {
+            alert('Please select a valid image file (JPEG, PNG, JPG, or GIF)');
+            this.value = '';
+            return;
+        }
+
+        // Validate file size (2MB = 2048KB)
+        if (file.size > 2048 * 1024) {
+            alert('Image size must be less than 2MB');
+            this.value = '';
+            return;
+        }
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('previewImg').src = e.target.result;
+            document.getElementById('imagePreview').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+function clearImagePreview() {
+    document.getElementById('imageInput').value = '';
+    document.getElementById('previewImg').src = '';
+    document.getElementById('imagePreview').style.display = 'none';
+}
+</script>
 @endsection
 
 @section('page-title', 'Create Module')

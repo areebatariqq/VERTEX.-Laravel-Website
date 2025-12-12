@@ -80,6 +80,23 @@
             </div>
         </div>
 
+        <!-- Search Bar -->
+        <div class="card border-0 shadow mb-4" style="background: #1a1a1a;">
+            <div class="card-body p-4">
+                <div class="position-relative" style="max-width: 600px;">
+                    <label for="orderSearch" class="text-white mb-2">Search Orders</label>
+                    <input type="text" 
+                           id="orderSearch" 
+                           class="form-control bg-dark text-white border-secondary" 
+                           placeholder="Search by Order ID, Customer Name, or Email..."
+                           autocomplete="off">
+                    <div id="searchResults" class="position-absolute w-100 mt-1" style="z-index: 1000; display: none;">
+                        <!-- Results will be populated here by Ajax -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Orders Table -->
         @if($orders->count() > 0)
         <div class="card border-0 shadow" style="background: #1a1a1a;">
@@ -169,4 +186,114 @@
         @endif
     </div>
 </section>
+
+<style>
+.search-result-item {
+    background: #2a2a2a;
+    border: 1px solid #444;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.search-result-item:hover {
+    background: #333;
+    border-color: #ffc107;
+}
+.search-result-item:first-child {
+    border-top-left-radius: 0.25rem;
+    border-top-right-radius: 0.25rem;
+}
+.search-result-item:last-child {
+    border-bottom-left-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('orderSearch');
+    const searchResults = document.getElementById('searchResults');
+    let searchTimeout;
+
+    searchInput.addEventListener('keyup', function() {
+        clearTimeout(searchTimeout);
+        const query = this.value.trim();
+
+        if (query.length < 1) {
+            searchResults.style.display = 'none';
+            searchResults.innerHTML = '';
+            return;
+        }
+
+        // Debounce search - wait 300ms after user stops typing
+        searchTimeout = setTimeout(function() {
+            fetch(`{{ route('admin.orders.search') }}?query=${encodeURIComponent(query)}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.length === 0) {
+                    searchResults.innerHTML = `
+                        <div class="search-result-item text-center">
+                            <span class="text-white-50">No orders found</span>
+                        </div>
+                    `;
+                    searchResults.style.display = 'block';
+                    return;
+                }
+
+                let html = '';
+                data.forEach(order => {
+                    html += `
+                        <a href="${order.url}" class="search-result-item text-decoration-none d-block">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="text-warning fw-bold">${order.order_id}</div>
+                                    <div class="text-white small">${order.customer_name}</div>
+                                    <div class="text-white-50 small">${order.customer_email}</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="text-white fw-bold">PKR ${order.total_amount}</div>
+                                    <div class="text-white-50 small">${order.date}</div>
+                                    <span class="badge bg-${order.status === 'Completed' ? 'success' : (order.status === 'Pending' ? 'warning' : 'info')} small">${order.status}</span>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                });
+
+                searchResults.innerHTML = html;
+                searchResults.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+                searchResults.innerHTML = `
+                    <div class="search-result-item text-center">
+                        <span class="text-danger">Error loading results</span>
+                    </div>
+                `;
+                searchResults.style.display = 'block';
+            });
+        }, 300);
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            searchResults.style.display = 'none';
+        }
+    });
+
+    // Show dropdown again when focusing on search input
+    searchInput.addEventListener('focus', function() {
+        if (searchResults.innerHTML && this.value.trim().length > 0) {
+            searchResults.style.display = 'block';
+        }
+    });
+});
+</script>
 @endsection

@@ -122,7 +122,7 @@
         </div>
     </div>
 </section>
-
+@endsection
 
 <script>
     // Image preview functionality
@@ -169,5 +169,3 @@
         }
     });
 </script>
-
-@endsection

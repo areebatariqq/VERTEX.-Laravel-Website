@@ -39,12 +39,20 @@ class ModuleController extends Controller
             'team_min' => 'required|integer|min:1',
             'team_max' => 'required|integer|min:1',
             'description' => 'required|string',
-            'image' => 'nullable|string', // Assuming simple string for now, or file upload later
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Image validation
             'duration' => 'nullable|string',
             'date' => 'nullable|date',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('images/modules'), $imageName);
+            $validated['image'] = 'images/modules/' . $imageName;
+        }
 
         Module::create($validated);
 
@@ -72,13 +80,26 @@ class ModuleController extends Controller
             'team_min' => 'required|integer|min:1',
             'team_max' => 'required|integer|min:1',
             'description' => 'required|string',
-            'image' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Image validation
             'duration' => 'nullable|string',
             'date' => 'nullable|date',
         ]);
 
         if ($module->name !== $validated['name']) {
             $validated['slug'] = Str::slug($validated['name']);
+        }
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($module->image && file_exists(public_path($module->image))) {
+                unlink(public_path($module->image));
+            }
+            
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('images/modules'), $imageName);
+            $validated['image'] = 'images/modules/' . $imageName;
         }
 
         $module->update($validated);
